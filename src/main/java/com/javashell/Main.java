@@ -341,7 +341,6 @@ public class Main {
 
     //Executing a file from a string that may contain quotation marks and returning true if the file exists and can be executed
     //Supports running and sending the output to another file
-    //Works always as intended only for builtin commands
     static boolean execFile(String givenString, String redirectFile) {
         StringBuilder currentWord = new StringBuilder();
         ArrayList<String> words = new ArrayList<>();
