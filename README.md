@@ -42,11 +42,6 @@ It supports basic built-in commands, external programs, quoting, and simple outp
 
 ## Limitations / Future Work
 
-- Current implementation is a single-class prototype; next step is to refactor
-  into separate components (shell loop, command parser, command executor).
-- Parsing logic for quoting/escaping is ad-hoc and focused on the supported
-  features; a proper tokenizer + parser would make it easier to extend with
-  pipes and more redirection operators.
 - Currently supports only `>` / `1>` for stdout redirection; stderr and pipes
   (`|`) are not yet implemented.
 
