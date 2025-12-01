@@ -5,13 +5,19 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Parser {
+    private String original;
     private String commandPart;
     private String filePart;
+    private String actualCommand; //Ex : "echo", "cd"
+    private String restCommand;
 
     public Parser(String original) {
+        this.original = original;
         String cleanedOriginal = cleanCommand(original);
         parsedCommand(cleanedOriginal);
+        commandSplitter(commandPart);
     }
+
 
     //Returns the command without quotes and backsalshes
     public String cleanCommand(String original) {
@@ -24,6 +30,17 @@ public class Parser {
             //Deals with double quotes
             if (c == '\"') {
                 while(++i < original.length() && (c = original.charAt(i)) != '"') {
+                    // Handle backslash inside double quotes
+                    if (c == '\\' && i + 1 < original.length()) {
+                        char next = original.charAt(i + 1);
+
+                        // Only these are escaped inside double quotes
+                        if (next == '\\' || next == '"' || next == '$' || next == '`') {
+                            result.append(next);
+                            i++; // skip the next char
+                            continue;
+                        }
+                    }
                     result.append(c);
                 }
                 continue;
@@ -58,6 +75,7 @@ public class Parser {
         return result.toString().trim();
     }
 
+    //Splits into command part and file part (looks for 1> || >)
     public void parsedCommand(String cleanedCommand) {
         List<String> words = new ArrayList<String>();
         StringBuilder command = new StringBuilder();
@@ -80,17 +98,38 @@ public class Parser {
             }
         }
 
-        if(file.length() > 0){
+        if(file.length() == 0){
             commandPart = cleanedCommand;
             filePart = null;
         } else {
-            for(int i = 0; i < words.indexOf(token); i++){
-                command.append(words.get(i));
-                command.append(" ");
+            for(int i = 0; i < cleanedCommand.indexOf(token); i++){
+                command.append(cleanedCommand.charAt(i));
             }
             commandPart = command.toString().trim();
             filePart = file.toString().trim();
         }
+    }
+
+    //Splits intro actual command (echo, pwd) and the rest
+    private void commandSplitter(String commandPart) {
+        if(commandPart.contains(" ")) {
+            actualCommand = commandPart.substring(0, commandPart.indexOf(" "));
+            restCommand = commandPart.substring(commandPart.indexOf(" ") + 1);
+        } else {
+            actualCommand = commandPart;
+        }
+    }
+
+    public String getOriginal() {
+        return original;
+    }
+
+    public String getActualCommand() {
+        return actualCommand;
+    }
+
+    public String getRestCommand() {
+        return restCommand;
     }
 
     public String getCommandPart() {
